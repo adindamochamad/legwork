@@ -1,0 +1,52 @@
+/* Deliberate palette, chosen once, up front — so the build never drifts into
+   default-blue/rounded-2xl territory. Warm paper, espresso ink, one rust accent. */
+:root {
+  --paper: #f4efe6;
+  --paper-sunk: #e9e1d4;
+  --ink: #241c15;
+  --ink-soft: #6b5c4d;
+  --rule: #d3c7b4;
+  --rust: #b4472a;
+  --moss: #4a5d3a;
+
+  --display: "Instrument Serif", Georgia, serif;
+  --body: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  margin: 0;
+}
+
+h1 { font-size: clamp(2.75rem, 7vw, 5.5rem); }
+
+a { color: var(--rust); }
+
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 28px; }
+
+/* Rules, not cards. Borders over shadows. */
+.rule { border-top: 1px solid var(--rule); }
+
+.tag {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
