@@ -51,7 +51,7 @@ Target aman: **submit Selasa 22 siang WIB**.
 
 - [x] **GitHub repo publik** + push — https://github.com/adindamochamad/legwork
 - [x] **README** — URL prod, demo `bqna40u53weq`, stack sponsor, cara run
-- [ ] **hackathon.md** — entri prod loop + demo URL (sebagian sudah 20 Sept)
+- [x] **hackathon.md** — entri prod loop + demo URL + GitHub publik
 - [ ] **Video** <3 menit (wow: reply → baris board)
 - [ ] **Post** X/LinkedIn tag `@convex @openai @firecrawl @agentmail`
 - [ ] **Submit** https://vibeapps.dev/judging/convex-all-gas-hackathon-openai/submit
@@ -84,7 +84,7 @@ npx convex run agent:sendGmailLoopTest '{"vendorEmail":"..."}' --prod
 - [x] Repo publik
 - [ ] Video <3 menit
 - [ ] Post sosial + tag sponsor
-- [ ] hackathon.md lengkap
+- [x] hackathon.md lengkap
 - [ ] vibeapps submit
 
 ---
