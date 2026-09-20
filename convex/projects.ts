@@ -33,7 +33,8 @@ export const createProject = mutation({
       label: "Looking for vendors",
     });
     await ctx.scheduler.runAfter(0, internal.agent.startProject, { projectId });
-    return projectId;
+    const project = await ctx.db.get(projectId);
+    return { projectId, shareToken: project!.shareToken };
   },
 });
 
@@ -118,4 +119,53 @@ export const addVendor = internalMutation({
 export const logEvent = internalMutation({
   args: { projectId: v.id("projects"), kind: v.any(), label: v.string() },
   handler: (ctx, args) => ctx.db.insert("events", args),
+});
+
+/** One vendor = controlled Gmail for proving the inbound loop (hackathon demo). */
+export const seedGmailLoopTest = internalMutation({
+  args: { vendorEmail: v.string() },
+  handler: async (ctx, { vendorEmail }) => {
+    const shareToken = token();
+    const projectId = await ctx.db.insert("projects", {
+      ownerKey: "gmail-loop-test",
+      title: "Gmail reply loop test",
+      vertical: "movers",
+      city: "Denver, CO",
+      rawRequest: "3 bedroom house move within Denver — webhook test.",
+      photoIds: [],
+      shareToken,
+      status: "collecting",
+      isDemo: true,
+      spec: {
+        summary: "3 bedroom house move within Denver, CO.",
+        bullets: [
+          "3 bedroom house in Denver",
+          "Destination within Denver metro",
+        ],
+        askFor: [
+          "total price",
+          "what is included",
+          "what is excluded",
+          "earliest date",
+          "deposit required",
+        ],
+      },
+    });
+    const vendorId = await ctx.db.insert("vendors", {
+      projectId,
+      name: "Demo mover (Gmail test vendor)",
+      website: "https://example.com",
+      email: vendorEmail,
+      serviceArea: "Denver, CO",
+      note: "Controlled vendor inbox for Legwork reply-loop test",
+      sourceUrl: "https://example.com/demo-vendor",
+      confidence: 1,
+    });
+    await ctx.db.insert("events", {
+      projectId,
+      kind: "discovered",
+      label: "Gmail loop test ready",
+    });
+    return { projectId, vendorId, shareToken };
+  },
 });

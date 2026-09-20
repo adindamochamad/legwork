@@ -12,7 +12,10 @@ const http = httpRouter();
 http.route({
   path: "/agentmail/webhook",
   method: "POST",
-  handler: httpAction(async (ctx, req) => agentmail.handleWebhook(ctx, req)),
+  handler: httpAction(async (ctx, req) =>
+    // httpAction ctx is compatible at runtime; AgentMail types against RunMutationCtx.
+    agentmail.handleWebhook(ctx as unknown as Parameters<typeof agentmail.handleWebhook>[0], req),
+  ),
 });
 
 // Firecrawl's own webhook is mounted by the component at /firecrawl/webhook.

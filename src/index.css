@@ -1,16 +1,14 @@
-/* Deliberate palette, chosen once, up front — so the build never drifts into
-   default-blue/rounded-2xl territory. Warm paper, espresso ink, one rust accent. */
+/* Brutalist: black field, cream slab, mono-first, no soft UI. */
 :root {
-  --paper: #f4efe6;
-  --paper-sunk: #e9e1d4;
-  --ink: #241c15;
-  --ink-soft: #6b5c4d;
-  --rule: #d3c7b4;
+  --paper: #f2eadf;
+  --field: #141210;
+  --ink: #141210;
+  --ink-soft: #5c5348;
+  --rule: #141210;
   --rust: #b4472a;
-  --moss: #4a5d3a;
 
   --display: "Instrument Serif", Georgia, serif;
-  --body: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --body: "JetBrains Mono", ui-monospace, monospace;
 
   color-scheme: light;
 }
@@ -19,34 +17,420 @@
 
 body {
   margin: 0;
-  background: var(--paper);
+  min-height: 100vh;
   color: var(--ink);
   font-family: var(--body);
-  font-size: 15px;
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-font-smoothing: auto;
+  background: var(--field);
 }
 
-h1, h2, h3 {
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+a:hover { color: var(--rust); }
+
+.viewport {
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.stage {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.sheet {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  box-shadow: 10px 10px 0 var(--ink);
+  padding: 24px 20px 28px;
+}
+
+.masthead {
+  border-bottom: 4px solid var(--ink);
+  padding-bottom: 14px;
+  margin-bottom: 24px;
+}
+
+.masthead-title {
+  display: inline-block;
+  font-family: var(--body);
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.masthead-title:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.masthead-dek {
+  margin: 10px 0 0;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  max-width: 100%;
+}
+
+.masthead-issue {
+  margin: 12px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--rust);
+}
+
+.home-lead {
+  margin-bottom: 28px;
+}
+
+.home-lead h1 {
+  margin: 0;
+  line-height: 0.92;
+}
+
+.line-main {
+  display: block;
+  font-family: var(--body);
+  font-size: clamp(2rem, 11vw, 3.4rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.line-sub {
+  display: block;
+  margin-top: 4px;
   font-family: var(--display);
+  font-size: clamp(2.4rem, 12vw, 4rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  color: var(--rust);
+}
+
+.margin-note {
+  margin: 20px 0 0;
+  padding: 12px 14px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  line-height: 1.55;
+  max-width: 100%;
+}
+
+.work-order {
+  border: 3px solid var(--ink);
+  padding: 16px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--paper);
+}
+
+.work-order-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+
+.work-order label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.work-order label span {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+
+.work-order input,
+.work-order textarea {
+  font-family: var(--body);
+  font-size: 14px;
+  padding: 10px;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  resize: vertical;
+}
+
+.work-order input:focus,
+.work-order textarea:focus {
+  outline: 3px solid var(--rust);
+  outline-offset: 0;
+}
+
+.form-err {
+  margin: 0;
+  color: var(--paper);
+  background: var(--rust);
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.submit-brutal {
+  width: 100%;
+  margin-top: 4px;
+  padding: 14px 16px;
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  background: var(--ink);
+  color: var(--paper);
+  border: 3px solid var(--ink);
+  cursor: pointer;
+}
+
+.submit-brutal:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.submit-brutal:disabled {
+  opacity: 0.4;
+  cursor: wait;
+}
+
+.home-foot {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 3px solid var(--ink);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.home-foot p { margin: 0 0 8px; }
+
+.foot-struck {
+  color: var(--ink-soft);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.foot-now {
+  font-weight: 500;
+}
+
+.board-titleblock h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
   font-weight: 400;
   letter-spacing: -0.02em;
-  line-height: 1.02;
-  margin: 0;
+  line-height: 1.05;
 }
 
-h1 { font-size: clamp(2.75rem, 7vw, 5.5rem); }
+.board-summary {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
 
-a { color: var(--rust); }
+.text-action {
+  margin-top: 16px;
+  padding: 8px 12px;
+  border: 2px solid var(--ink);
+  background: transparent;
+  font-family: var(--body);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
 
-.wrap { max-width: 1040px; margin: 0 auto; padding: 0 28px; }
+.text-action:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
 
-/* Rules, not cards. Borders over shadows. */
-.rule { border-top: 1px solid var(--rule); }
+.ledger-preface {
+  margin: 0 0 16px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
 
-.tag {
+.ledger {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 4px solid var(--ink);
+}
+
+.ledger-row {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 8px 12px;
+  padding: 18px 0;
+  border-bottom: 2px solid var(--ink);
+}
+
+.ledger-outlier {
+  background: var(--rust);
+  color: var(--paper);
+  margin: 0 -8px;
+  padding: 18px 8px;
+}
+
+.ledger-outlier a,
+.ledger-outlier .ledger-chips,
+.ledger-outlier .ledger-terms em,
+.ledger-outlier .ledger-pull figcaption,
+.ledger-outlier .ledger-price-empty {
+  color: color-mix(in srgb, var(--paper) 75%, white);
+}
+
+.ledger-outlier .ledger-pull blockquote {
+  border-left-color: var(--paper);
+  color: var(--paper);
+}
+
+.ledger-index {
+  font-size: 12px;
+  font-weight: 500;
+  padding-top: 2px;
+}
+
+.ledger-outlier .ledger-index {
+  color: var(--paper);
+}
+
+.ledger-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.ledger-vendor {
+  margin: 0;
+  font-family: var(--body);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.ledger-price {
+  font-family: var(--body);
+  font-size: 1.65rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.ledger-price-empty {
+  font-size: 1.25rem;
+  color: var(--ink-soft);
+}
+
+.ledger-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.chip-warn { color: var(--rust); }
+
+.ledger-outlier .chip-warn {
+  color: var(--paper);
+  text-decoration: underline;
+}
+
+.ledger-terms {
+  margin: 10px 0 0;
+  font-size: 11px;
+}
+
+.ledger-terms em {
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+.ledger-pull {
+  margin: 12px 0 0;
+}
+
+.ledger-pull blockquote {
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 4px solid var(--ink);
+  background: color-mix(in srgb, var(--ink) 6%, var(--paper));
+  font-family: var(--body);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ledger-outlier .ledger-pull blockquote {
+  background: color-mix(in srgb, var(--paper) 12%, transparent);
+}
+
+.ledger-pull figcaption {
+  margin-top: 6px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+.run-log {
+  margin-top: 24px;
+  padding-top: 14px;
+  border-top: 3px solid var(--ink);
+}
+
+.run-log-title {
+  margin: 0 0 10px;
   font-size: 11px;
   letter-spacing: 0.14em;
-  text-transform: uppercase;
+}
+
+.run-log-lines p {
+  margin: 0 0 4px;
+  font-size: 11px;
   color: var(--ink-soft);
+}
+
+.run-kind {
+  display: inline-block;
+  min-width: 5rem;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.empty-msg {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 520px) {
+  .sheet {
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+
+  .ledger-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

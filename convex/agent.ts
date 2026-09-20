@@ -2,7 +2,42 @@
 import { v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { buildSpec, draftRfq, parseReply, type Spec } from "./llm";
+/** Send one RFQ to a Gmail you control, then Reply from Gmail to close the loop. */
+export const sendGmailLoopTest = internalAction({
+  args: { vendorEmail: v.string() },
+  handler: async (
+    ctx,
+    { vendorEmail },
+  ): Promise<{ projectId: Id<"projects">; shareToken: string }> => {
+    const { projectId, vendorId, shareToken } = await ctx.runMutation(
+      internal.projects.seedGmailLoopTest,
+      { vendorEmail },
+    );
+    const subject = "Request for quote: 3 bedroom move in Denver";
+    const body = `Hello,
+
+I'm gathering quotes for a 3 bedroom house move within Denver, CO. Please reply with:
+
+1. Total price
+2. What is included
+3. What is excluded
+4. Earliest date you can do the move
+5. Deposit required
+
+Sent by Legwork on behalf of the homeowner`;
+
+    await ctx.runMutation(internal.email.queueAndSend, {
+      projectId,
+      vendorId,
+      to: vendorEmail,
+      subject,
+      body,
+    });
+    return { projectId, shareToken };
+  },
+});
 
 /** Kickoff: turn the request into a spec, find vendors, then write the mail. */
 export const startProject = internalAction({

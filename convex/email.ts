@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import { agentmail } from "./agentmailClient";
 
 function inboxId() {
@@ -10,6 +10,32 @@ function inboxId() {
 }
 
 const FOLLOW_UP_AFTER = 48 * 60 * 60 * 1000;
+
+/** LLM sometimes returns a single string instead of string[]. */
+function stringList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((x): x is string => typeof x === "string");
+  }
+  if (typeof value === "string" && value.trim()) return [value.trim()];
+  return [];
+}
+
+/** Copy AgentMail thread id onto outreach after send completes. */
+export const syncOutreachThread = internalMutation({
+  args: {
+    outreachId: v.id("outreach"),
+    outboundId: v.string(),
+  },
+  handler: async (ctx, { outreachId, outboundId }) => {
+    const status = await ctx.runQuery(components.agentmail.lib.getOutboundStatus, {
+      outboundId: outboundId as never,
+    });
+    if (!status?.threadId) return;
+    const row = await ctx.db.get(outreachId);
+    if (!row || row.threadId) return;
+    await ctx.db.patch(outreachId, { threadId: status.threadId });
+  },
+});
 
 /** Store the drafted RFQ and hand it to AgentMail's durable sender. */
 export const queueAndSend = internalMutation({
@@ -29,17 +55,24 @@ export const queueAndSend = internalMutation({
       labels: ["legwork", `project:${args.projectId}`],
     });
 
-    await ctx.db.insert("outreach", {
+    const outreachId = await ctx.db.insert("outreach", {
       projectId: args.projectId,
       vendorId: args.vendorId,
       outboundId: outboundId as unknown as string,
       subject: args.subject,
       body: args.body,
-      status: "sent",
+      status: "queued",
       sentAt: Date.now(),
       followUpCount: 0,
       nextFollowUpAt: Date.now() + FOLLOW_UP_AFTER,
     });
+
+    // Bind AgentMail thread once send completes (speeds up reply routing).
+    await ctx.scheduler.runAfter(
+      5000,
+      internal.email.syncOutreachThread,
+      { outreachId, outboundId: outboundId as unknown as string },
+    );
 
     const vendor = await ctx.db.get(args.vendorId);
     await ctx.db.insert("events", {
@@ -57,9 +90,34 @@ export const queueAndSend = internalMutation({
 export const onMessageReceived = internalMutation({
   args: { message: v.any(), thread: v.any(), eventId: v.string() },
   handler: async (ctx, args) => {
-    const threadId: string | undefined = args.message?.thread_id;
-    const text: string = args.message?.text ?? args.message?.extracted_text ?? "";
-    if (!threadId) return;
+    const threadId: string | undefined =
+      args.message?.thread_id ?? args.message?.threadId;
+    const text: string =
+      args.message?.text ??
+      args.message?.extracted_text ??
+      args.message?.extractedText ??
+      "";
+    // #region agent log
+    console.log("[legwork inbound]", {
+      hypothesisId: "H3",
+      eventId: args.eventId,
+      hasThreadId: Boolean(threadId),
+      hasText: text.length > 0,
+      fromDomain: String(args.message?.from ?? args.message?.from_ ?? "")
+        .split("@")[1]
+        ?.slice(0, 24),
+    });
+    // #endregion
+    if (!threadId) {
+      // #region agent log
+      console.log("[legwork inbound] early exit", {
+        hypothesisId: "H3b",
+        reason: "no_thread_id",
+        eventId: args.eventId,
+      });
+      // #endregion
+      return;
+    }
 
     // Match the reply to the outreach it answers.
     let row = await ctx.db
@@ -70,7 +128,11 @@ export const onMessageReceived = internalMutation({
     if (!row) {
       // First reply on this thread: bind the thread to the most recent send
       // to this address that has no thread yet.
-      const from: string = (args.message?.from ?? "").toLowerCase();
+      const from: string = (
+        args.message?.from ??
+        args.message?.from_ ??
+        ""
+      ).toLowerCase();
       const candidates = await ctx.db.query("outreach").collect();
       for (const c of candidates) {
         if (c.threadId) continue;
@@ -82,7 +144,26 @@ export const onMessageReceived = internalMutation({
         }
       }
     }
-    if (!row) return;
+    if (!row) {
+      // #region agent log
+      console.log("[legwork inbound] early exit", {
+        hypothesisId: "H4",
+        reason: "no_outreach_match",
+        eventId: args.eventId,
+        threadId,
+      });
+      // #endregion
+      return;
+    }
+
+    // #region agent log
+    console.log("[legwork inbound] matched outreach", {
+      hypothesisId: "H5",
+      eventId: args.eventId,
+      outreachId: row._id,
+      projectId: row.projectId,
+    });
+    // #endregion
 
     await ctx.db.patch(row._id, { status: "replied", nextFollowUpAt: undefined });
     const vendor = await ctx.db.get(row.vendorId);
@@ -123,9 +204,9 @@ export const recordQuote = internalMutation({
       priceMax: quote.priceMax ?? undefined,
       currency: quote.currency ?? undefined,
       availability: quote.availability ?? undefined,
-      inclusions: quote.inclusions ?? [],
-      exclusions: quote.exclusions ?? [],
-      caveats: quote.caveats ?? [],
+      inclusions: stringList(quote.inclusions),
+      exclusions: stringList(quote.exclusions),
+      caveats: stringList(quote.caveats),
       needsMoreInfo: Boolean(quote.needsMoreInfo),
       rawExcerpt: quote.rawExcerpt ?? "",
       confidence: quote.confidence ?? 0.5,

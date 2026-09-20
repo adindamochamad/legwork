@@ -23,7 +23,13 @@ export const byToken = query({
 
     // Never leak the vendor mailbox on a public board.
     return {
-      project: { title: project.title, city: project.city, status: project.status, isDemo: project.isDemo },
+      project: {
+        title: project.title,
+        city: project.city,
+        status: project.status,
+        isDemo: project.isDemo,
+        summary: project.spec?.summary,
+      },
       vendors: vendors.map(({ email, ...rest }) => rest),
       outreach: outreach.map(({ body, ...rest }) => rest),
       quotes,

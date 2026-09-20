@@ -95,7 +95,7 @@ Hard rules:
 - priceMin/priceMax are plain numbers, no symbols or separators. A single price goes in both.
 - rawExcerpt: quote the vendor's own words that justify the price, verbatim, max 200 chars.
 - confidence 0..1: how sure you are this row reflects what they actually committed to.
-- caveats: conditions that could change the price later.`,
+- inclusions, exclusions, caveats: JSON arrays of strings (never a single string).`,
     `Vendor: ${vendorName}
 Job: ${spec.summary}
 Fields we asked for: ${spec.askFor.join(", ")}

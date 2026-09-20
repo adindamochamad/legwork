@@ -3,14 +3,17 @@
 - **Project:** Legwork
 - **Event:** Convex All Gas Hackathon
 - **What it does:** Describe one local-services job; Legwork finds the vendors, emails each of them, chases the quiet ones, and turns their free-form replies into a single comparable table that fills in live.
-- **Live app:** (not deployed yet — Saturday)
-- **Repo:** (public repo pending)
+- **Live app (prod):** https://hip-egret-263.convex.site · demo board `/b/bqna40u53weq`
+- **Dev:** https://knowing-narwhal-778.convex.site · `/b/44wwk3jlq6do`
+- **Repo:** https://github.com/adindamochamad/legwork
 - **Frontend:** Convex static hosting
+- **Convex deployment:** prod `hip-egret-263`, dev `knowing-narwhal-778`
 - **Components:** @agentmail/convex, @firecrawl/firecrawl-convex, @convex-dev/static-hosting
-- **Convex features planned:** schema, indexes, queries, mutations, actions, internal functions, HTTP actions, scheduled functions, crons, file storage, realtime queries
+- **Convex features:** schema, indexes, queries, mutations, actions, internal functions, HTTP actions, crons, realtime queries
 - **Auth:** anonymous owner key for now; Convex Auth is a stretch goal
 - **AI models:** OpenAI via `OPENAI_MODEL` on the deployment
-- **Started:** 2026-09-16
+- **Started:** 2026-09-16T13:11:04Z
+- **Last updated:** 2026-09-20T16:00:00Z
 
 ## Log
 
@@ -41,3 +44,46 @@ Scaffolded the app around that loop rather than around screens:
 
 No deployment and no vendor mail yet: nothing has been sent, and the log will
 say so until it has.
+
+### 2026-09-16 - working tree
+Convex account linked (project `legwork`, local dev deployment). Fixed TypeScript
+errors blocking `convex dev` push (`agentmailClient.ts`, `http.ts`, `@types/node`,
+`vite-env.d.ts`). Added `scripts/convex.sh` for Node 22. Installed hackathon
+build-log skill and Convex MCP config. Push still blocked on deployment env vars
+(`FIRECRAWL_API_KEY` minimum).
+
+### 2026-09-18 - working tree
+Verified Firecrawl discovery against cloud deployment `knowing-narwhal-778`.
+Fixed `discovery.ts` to read v2 `SearchResponse.web`, typed JSON extract from
+`page.json`, contact-page fallback (`/contact`, `/contact-us`), and strict email
+validation. Denver test: 7 real movers, 5 with published emails including
+`deninfo@buehlercompanies.com`, `sales@affordablemoving.net`,
+`movinghelp@altitudemoversdenver.com` (via contact scrape). Austin test: 7
+movers, 2 emails. `startProject` still blocked until OpenAI billing has credits
+(429 on `buildSpec`).
+
+### 2026-09-20 — inbound loop + comparison board UI
+
+Closed the Gmail-controlled reply loop on `knowing-narwhal-778`: AgentMail
+inbound → `onMessageReceived` → `parseIncoming`. Fixed schema mismatch when
+OpenAI returned `caveats` as a string (`stringList` normalizer in `email.ts`).
+
+Shipped the public comparison board: vendor table with outreach status, price,
+includes/excludes, outlier flag, mandatory `rawExcerpt` + confidence block, and
+live activity feed. Home route adds a one-shot job form (`createProject` →
+redirect to `/b/:token`). Static assets uploaded via
+`npx @convex-dev/static-hosting upload --build` (`npm run upload:static`).
+
+### 2026-09-20 (evening) — production deploy + prod email loop
+
+- Prod Convex `hip-egret-263`: backend deploy, env mirror (6 vars), static hosting.
+- AgentMail webhook prod: `https://hip-egret-263.convex.site/agentmail/webhook`.
+- Verified end-to-end on prod: `sendGmailLoopTest` → Gmail reply → inbound →
+  `replied` → parse → quote ($2,200, excerpt, 90% confidence).
+- Demo share link: `/b/bqna40u53weq`. UI: brutal quote-ledger (`src/App.tsx`).
+- `email.ts`: `stringList` for LLM arrays, `syncOutreachThread`, inbound debug logs.
+
+### 2026-09-20 (night) — public GitHub + README for submit
+
+- README: prod URL, share board `bqna40u53weq`, sponsor stack table, local run/deploy.
+- Public repo: https://github.com/adindamochamad/legwork (full app source, no secrets).
